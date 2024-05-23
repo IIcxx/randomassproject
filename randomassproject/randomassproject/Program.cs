@@ -11,10 +11,20 @@ Raylib.SetTargetFPS(60);
 String scene = "Start";   //variables
 bool alive = true;
 int Level = 1;
-int Currency = 0;
+int Currency = 200;
 int Lvl = 1;
+string errorTxt = "";
+
+stackable hpPot = new stackable();
+hpPot.Amount = 5;
+hpPot.Cost = 50;
+hpPot.Name = "HP Pot";
 
 
+weapon brassSword = new weapon();
+brassSword.Owned = false;
+brassSword.Name = "Brass Sword";
+brassSword.Cost = 150;
 Rectangle Character = new Rectangle(50, 50, 45, 45); //Character
 Rectangle tp = new Rectangle(400, 700, 100, 100);
 Rectangle Store = new Rectangle(300, 300, 100, 100);
@@ -86,7 +96,9 @@ while (Raylib.WindowShouldClose() == false)
   if (scene == "Game")
   {
     Raylib.ClearBackground(Color.GREEN);
-
+  if(Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT) == true && brassSword.Owned == true){
+   brassSword.attack();
+  }
 
     // Create a list to hold rectangles
     List<Rectangle> rect1List = new List<Rectangle>();
@@ -187,10 +199,7 @@ while (Raylib.WindowShouldClose() == false)
       System.Console.WriteLine("hej");
     }
 
-    if (Raylib.CheckCollisionRecs(Store, Character) == true && Raylib.IsKeyPressed(KeyboardKey.KEY_SPACE))
-    {
-      scene = "Store";
-    }
+
     if (Level == 1)
     {
 
@@ -317,12 +326,14 @@ while (Raylib.WindowShouldClose() == false)
     Raylib.DrawText($"You have: {Currency} Coins", 670, 50, 24, Color.BLACK);
     Raylib.DrawText($"You are currently on Level {Lvl}", 670, 20, 24, Color.BLACK);
   }
-  else if (scene == "Store")
-  {
-    if (Raylib.IsKeyPressed(KeyboardKey.KEY_BACKSPACE) == true)
+      if (Raylib.CheckCollisionRecs(Store, Character) == true && Raylib.IsKeyPressed(KeyboardKey.KEY_SPACE))
     {
-      scene = "Game";
+      scene = "Store";
+
+
     }
+  if (scene == "Store")
+  {
     Raylib.ClearBackground(Color.SKYBLUE);
     Raylib.DrawRectangle(100, 100, 824, 600, Color.WHITE);
     Raylib.DrawRectangle(175, 175, 325, 125, Color.LIGHTGRAY);
@@ -332,18 +343,35 @@ while (Raylib.WindowShouldClose() == false)
     Raylib.DrawRectangle(525, 325, 325, 125, Color.LIGHTGRAY);
     Raylib.DrawRectangle(525, 475, 325, 125, Color.LIGHTGRAY);
     Raylib.DrawText("Press BACKSPACE to exit store", 600, 115, 18, Color.BLACK);
-    Raylib.DrawText("Press 1 to buy # \n for # Coins", 200, 200, 24, Color.BLACK);
-    Raylib.DrawText("Press 2 to buy # \n for # Coins", 200, 350, 24, Color.BLACK);
-    Raylib.DrawText("Press 3 to buy # \n for # Coins", 200, 500, 24, Color.BLACK);
-    Raylib.DrawText("Press 4 to buy # \n for # Coins", 550, 200, 24, Color.BLACK);
-    Raylib.DrawText("Press 5 to buy # \n for # Coins", 550, 350, 24, Color.BLACK);
-    Raylib.DrawText("Press 6 to buy # \n for # Coins", 550, 500, 24, Color.BLACK);
-    if (Raylib.IsKeyPressed(KeyboardKey.KEY_ONE) == true)
+    Raylib.DrawText($"Press 1 to buy {hpPot.Name}\n for {hpPot.Cost} Coins", 200, 200, 24, Color.BLACK);
+    Raylib.DrawText($"Press 2 to buy {brassSword.Name} \n for {brassSword.Cost} Coins", 200, 350, 18, Color.BLACK);
+    Raylib.DrawText("Press 3 to buy # \n for # Coins", 200, 500, 18, Color.BLACK);
+    Raylib.DrawText("Press 4 to buy # \n for # Coins", 550, 200, 18, Color.BLACK);
+    Raylib.DrawText("Press 5 to buy # \n for # Coins", 550, 350, 18, Color.BLACK);
+    Raylib.DrawText("Press 6 to buy # \n for # Coins", 550, 500, 18, Color.BLACK);
+    Raylib.DrawText($"{errorTxt}",30,30,24,Color.BLACK);
+    if (Raylib.IsKeyPressed(KeyboardKey.KEY_BACKSPACE) == true)
     {
-
+      scene = "Game";
     }
-    if (Raylib.IsKeyPressed(KeyboardKey.KEY_TWO) == true)
+
+    if (Raylib.IsKeyPressed(KeyboardKey.KEY_ONE) == true && Currency >= 50)
     {
+      hpPot.Amount += 1;
+      Currency -= 50;
+    }
+    else if (Raylib.IsKeyPressed(KeyboardKey.KEY_ONE) == true && Currency <= 50)
+    {
+      errorTxt = $"You don't have enough Coins to buy {hpPot.Name}, you are missing {hpPot.Cost - Currency} coins.";
+    }
+    if (Raylib.IsKeyPressed(KeyboardKey.KEY_TWO) == true && Currency >= 150)
+    {
+      brassSword.Owned = true;
+      Currency -= 150;
+    }
+    else if (Raylib.IsKeyPressed(KeyboardKey.KEY_TWO) == true && Currency <= 150){
+    
+      errorTxt = $"You don't have enough Coins to buy {brassSword.Name}, you are missing {brassSword.Cost - Currency} coins.";
     }
 
     if (Raylib.IsKeyPressed(KeyboardKey.KEY_THREE) == true)
@@ -362,6 +390,7 @@ while (Raylib.WindowShouldClose() == false)
     {
 
     }
+    
   }
   else if (scene == "Start")
   {
